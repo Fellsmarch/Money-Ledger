@@ -116,14 +116,3 @@ def main():
     
     
 main()
-   
-#harry = Person("Harry")
-#harry.add_money_spent(100)
-#liam = Person("Liam")
-#liam.add_money_spent(25)
-#james = Person("James")
-#james.add_money_spent(25)
-##print_ledger([harry, liam, james])
-##print_ledger_new([harry, liam, james])
-#print(james)
-#print(harry)
