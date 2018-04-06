@@ -1,5 +1,8 @@
 """This program uses user input to create a group's money ledger and calculate
-   how much each person in the group owes each other person."""
+   how much each person in the group owes each other person.
+   
+   Author: Harrion Cook
+   Version: 1.0 April 2018"""
 
 class Person:
     """Defines the Person class.
@@ -44,6 +47,7 @@ def get_num_in_group():
         
 def get_num_suffix(i):
     """Gets the correct English suffix for a given number"""
+    i = i % 100
     if i == 11 or i == 12 or i == 13:
         return "th"
     i = i % 10
@@ -112,7 +116,5 @@ def main():
     group_list = create_group_list()
     get_amount_spent(group_list)
     print_ledger(group_list)
-        
-    
-    
+
 main()
