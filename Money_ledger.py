@@ -45,17 +45,17 @@ def get_num_in_group():
             print("Input is not a integer, please try again")    
         
         
-def get_num_suffix(i):
+def get_num_suffix(num):
     """Gets the correct English suffix for a given number"""
-    i = i % 100
-    if i == 11 or i == 12 or i == 13:
+    num = num % 100
+    if num == 11 or num == 12 or num == 13:
         return "th"
-    i = i % 10
-    if i == 1:
+    num = num % 10
+    if num == 1:
         return "st"
-    elif i == 2:
+    elif num == 2:
         return "nd"
-    elif i == 3:
+    elif num == 3:
         return "rd"
     else:
         return "th"
