@@ -1,3 +1,5 @@
+from sys import exit
+
 """This program uses user input to create a group's money ledger and calculate
    how much each person in the group owes each other person.
    
@@ -32,21 +34,38 @@ class Person:
         template = "{0} has spent ${1} on the group so they are owed ${2}"
         return template.format(name, money_spent, self.money_owed)
     
+    
+def get_input(question, comparator, error_message="Invalid input, please try again"):
+    user_input = None
+    while True:
+        user_input = input(question)
+        if user_input == "q".lower():
+            print("\nThank you for using Money Ledger")
+            exit(0)
+        else:
+            #print(isinstance(user_input, int))
+            input_good = comparator(user_input)
+            if not input_good:
+                print("ERROR: " + error_message + "\n")
+            else:
+                return user_input
+            
+            
+def get_integer_input(question):
+    error_message = "Input is not an integer, please try again"
+    comparator = lambda user_input : user_input.isdigit()
+    
+    return int(get_input(question, comparator, error_message))
+        
 
 def get_num_in_group():
     """Gets from the user the number of people in the money ledger group"""
-    input_successful = False
-    while not input_successful: #Ensures the user unit is valid (an Int)
-        group_num = input("How many are in your group? ")
-        try:
-            group_num = int(group_num)
-            return group_num
-        except ValueError:
-            print("Input is not a integer, please try again")    
-        
+    question = "How many are in your group? "
+    return get_integer_input(question)
+
         
 def get_num_suffix(num):
-    """Gets the correct English suffix for a given number"""
+    """Gets the correct English ordinal indicator (suffix) for a given number"""
     num = num % 100
     if num == 11 or num == 12 or num == 13:
         return "th"
@@ -63,11 +82,13 @@ def get_num_suffix(num):
 
 def get_name(num):
     """Gets a name for a Person from the user"""
-    input_successful = False
     suffix = get_num_suffix(num)
-    template = "What is the {0}{1} person's name? "
-    name = input(template.format(num, suffix))
-    return name
+    
+    question = "What is the {0}{1} person's name? ".format(num, suffix)
+    comparator = lambda user_input : len(user_input) > 0
+    error_message = "Name must be at least one character"
+    
+    return get_input(question, comparator, error_message)
 
     
 def create_group_list():
@@ -77,6 +98,7 @@ def create_group_list():
     for person_num in range(group_num):
         name = get_name(person_num + 1)
         group.append(Person(name))
+    print("\n----------------------------------------------")
     return group
     
     
@@ -84,37 +106,74 @@ def get_amount_spent(group):
     """For each person in the group, this method asks the user for that person's
     amount spent for the group **Including** that person's share of that
     amount"""
-    template = "How much has {0} spent? $"
+    question = "How much has {0} spent? $"
     group_size = len(group)
+    total_money_spent = 0
+    
     for person in group:
-        input_successful = False
-        while not input_successful: #Ensures that the users input is valid (an int)
-            money_spent = input(template.format(person.name))
-            try:
-                money_spent = int(money_spent)
-                person.add_money_spent(money_spent, group_size)
-                input_successful = True
-            except ValueError:
-                print("Input is not a integer, please try again")     
+        money_spent = get_integer_input(question.format(person.name))
+        person.add_money_spent(money_spent, group_size)
+        total_money_spent += money_spent
+                
+    return total_money_spent
 
         
-def print_ledger(group):
+def print_ledger(total_money_spent, group):
     """Prints the final ledger for the group"""
     group_num = len(group) #The number of people in the group
+    
+    print("\nTotal money spent by the group: ${0}".format(total_money_spent))
+    
     for receiver in group:      #Iterates through the group one person at a time
         for sender in group:    #For each person iterates through the group again
             if not receiver == sender:
                 receiver_owes = sender.money_owed / (group_num - 1) #The reciever owes the sender this much money
                 sender_owes = receiver.money_owed / (group_num - 1) #The sender owes the reciever this much money
                 sender_pays = receiver_owes - sender_owes #Ensures that money will not transfer between two people more than once
-                if sender_pays > 0: #Some sender_pays values will be negative, this means that the reciever actually owes the sender. Since every pair of people are checked twice, if money is owed, on one of the checks sender_pays will be positive. This line ensures that only the positive value is printed.
-                    template = "{0} should pay {1} ${2:.1f}" #Rounds to closest 10c
-                    print(template.format(receiver.name, sender.name, sender_pays))                 
                 
+                #Some sender_pays values will be negative, this means that the reciever actually owes the sender. Since every pair of people are checked twice, if money is owed, on one of the checks sender_pays will be positive. This line ensures that only the positive value is printed.
+                if sender_pays > 0: 
+                    template = "{0} should pay {1} ${2:.1f}0" #Rounds to closest 10c
+                    print(template.format(receiver.name, sender.name, sender_pays))
+                    
+    print()
+
+def user_requires_explanation():
+    string = "Would you like an explanation for a person? (y/n) "
+    acceptable_input = ["y", "yes", "n", "no"]
+    comparator = lambda user_input : user_input.lower() in acceptable_input
+    user_input = get_input(string, comparator).lower()
+    
+    if user_input == "y" or user_input == "yes":
+        return True
+    else: 
+        return False
+    
+
+def get_person(group):
+    question = "What person would you like an explanation for? "
+    error_message = "That person is not in the group, please try again"
+    def comparator(person_input, return_person=False):
+        for person in group:
+            if person.name.lower() == person_input.strip().lower():
+                if not return_person:
+                    return True
+                else:
+                    return person
+        return False
+    
+    person = comparator(get_input(question, comparator, error_message), True)
+    print(person.name)
+    
     
 def main():
+    print("Welcome to Money Ledger! Press q to exit at any time\n")
     group_list = create_group_list()
-    get_amount_spent(group_list)
-    print_ledger(group_list)
-
-main()
+    total_money_spent = get_amount_spent(group_list)
+    print_ledger(total_money_spent, group_list)
+    if user_requires_explanation():
+        get_person(group_list)
+    
+    
+if __name__ == "__main__":
+    main()
