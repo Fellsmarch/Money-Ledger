@@ -3,11 +3,18 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * This program uses user input to create a group's money ledger and calculate
+ * how much each person in the group owes each other person.
+
+ * Author: Harrion Cook
+ * Version: 1.0 April 2018
+**/
 public class MoneyLedger
 	{
 		ArrayList<Person> group = new ArrayList<Person>();
 		private int numInGroup;
-		
+
 		public int getValidInputNum(int minNum) {
 			Scanner scanner = new Scanner(System.in);
 			int toReturn = 0; //Have to instantiate to something since method has to return an int
@@ -30,7 +37,7 @@ public class MoneyLedger
 			//scanner.close(); --> This closes the scanner for the whole program, not just for the method
 			return toReturn; //This is only done this way since the method needs to return an int
 		}
-		
+
 		public void createGroup() {
 			System.out.println("How many are in your group?");
 			numInGroup = getValidInputNum(1);
@@ -40,12 +47,12 @@ public class MoneyLedger
 				group.add(new Person(newName));
 			}
 		}
-		
+
 		public String getName() {
 			Scanner scanner = new Scanner(System.in);
 			return scanner.next();
 		}
-		
+
 		public String getSuffix(int num) {
 			num %= 100;
 			if (num == 11 || num == 12 || num == 13) {return "th";}
@@ -57,7 +64,7 @@ public class MoneyLedger
 				else {return "th";}
 			}
 		}
-		
+
 		public void getAmountSpent() {
 			for (Person person : group) {
 				System.out.println("How much money has " + person.getName() + " spent on the group?");
@@ -65,7 +72,7 @@ public class MoneyLedger
 				person.addMoneySpent(moneySpent, numInGroup);
 			}
 		}
-		
+
 		public void printLedger() {
 			for (Person receiver : group) {
 				for (Person sender : group) {
@@ -82,7 +89,7 @@ public class MoneyLedger
 				}
 			}
 		}
-		
+
 		public static void main(String[] args)
 			{
 				MoneyLedger moneyLedger = new MoneyLedger();
@@ -92,5 +99,3 @@ public class MoneyLedger
 
 			}
 	}
-		
-
